@@ -11,4 +11,10 @@ services:
     environment:
       - NODE_ENV=production
       - API_URL=http://spot-gateway:8080
+    networks:
+      - spot_spot-network
     restart: unless-stopped
+
+networks:
+  spot_spot-network:
+    external: true

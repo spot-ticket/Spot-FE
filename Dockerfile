@@ -11,6 +11,8 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG API_URL=http://spot-gateway:8080
+ENV API_URL=${API_URL}
 RUN pnpm build
 
 FROM base AS runner
