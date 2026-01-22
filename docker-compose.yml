@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  spot-fe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spot-fe
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://spot-gateway:8080
+    restart: unless-stopped
