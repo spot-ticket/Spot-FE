@@ -2,7 +2,10 @@ import api from './api';
 import type { ApiResponse, PaymentConfirmRequest, PaymentConfirmResponse } from '@/types';
 
 export const paymentApi = {
-  // 결제 승인
+  
+  // ******* //
+  // 결제 승인 //
+  // ******* //
   confirmPayment: async (
     orderId: string,
     data: PaymentConfirmRequest
@@ -14,7 +17,9 @@ export const paymentApi = {
     return response.data.result;
   },
 
-  // 결제 취소
+  // ******* //
+  // 결제 취소 //
+  // ******* //
   cancelPayment: async (
     orderId: string,
     paymentId: string,
@@ -44,7 +49,28 @@ export const paymentApi = {
     authKey: string;
     customerKey: string;
   }): Promise<void> => {
-    await api.post('/api/payments/billing-key', data);
+    const response = await api.post<ApiResponse<unknown>>('/api/payments/billing-key', data);
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || '빌링키 저장에 실패했습니다.');
+    }
+  },
+
+  // *********** //
+  // 결제 정보 저장 //
+  // *********** //
+  savePaymentHistory: async (data: {
+    userId: number;
+    orderId: string;
+    title: string;
+    content: string;
+    paymentMethod: string;
+    paymentAmount: number;
+    paymentKey: string;
+  }): Promise<void> => {
+    const response = await api.post<ApiResponse<unknown>>('/api/payments/history', data);
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || '결제 정보 저장에 실패했습니다.');
+    }
   },
 };
 

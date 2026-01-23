@@ -18,7 +18,6 @@ function BillingSuccessContent() {
       try {
         // URL에서 파라미터 추출
         console.log('=== Billing Success Page ===');
-        console.log('전체 URL:', window.location.href);
         console.log('모든 URL 파라미터:');
         searchParams.forEach((value, key) => {
           console.log(`  ${key}: ${value}`);
@@ -28,8 +27,10 @@ function BillingSuccessContent() {
         const customerKey = searchParams.get('customerKey');
         const orderId = searchParams.get('orderId');
         const paymentMethod = searchParams.get('paymentMethod');
+        const amount = searchParams.get('amount');
+        const paymentKey = searchParams.get('paymentKey');
 
-        console.log('추출된 값:', { authKey, customerKey, orderId, paymentMethod });
+        console.log('추출된 값:', { authKey, customerKey, orderId, paymentMethod, amount, paymentKey });
 
         if (!authKey || !customerKey) {
           throw new Error('빌링키 정보가 없습니다.');
@@ -39,27 +40,35 @@ function BillingSuccessContent() {
           throw new Error('사용자 정보를 불러올 수 없습니다.');
         }
 
-        // 1. 빌링키 저장
-        console.log('빌링키 저장 중...', { authKey, customerKey, userId: user.id });
+        // ******** //
+        // 빌링키 저장 //
+        // ******** //
         await paymentApi.saveBillingKey({
           userId: user.id,
           authKey,
           customerKey,
         });
 
-        // 2. orderId가 있으면 자동으로 결제 진행
+        // *********** //
+        // 결제 정보 저장 //
+        // *********** //
         if (orderId) {
-          console.log('결제 진행 중...', { orderId, paymentMethod });
-          const paymentData = {
-            title: '주문 결제',
-            content: '자동결제 등록 후 결제',
+          if (!amount) {
+            throw new Error('결제 금액 정보가 없습니다.');
+          }
+          if (!paymentKey) {
+            throw new Error('결제 키 정보가 없습니다.');
+          }
+
+          await paymentApi.savePaymentHistory({
             userId: user.id,
             orderId,
-            paymentMethod: (paymentMethod as any) || 'CREDIT_CARD',
-            paymentAmount: 0, // 서버에서 주문 금액 조회
-          };
-
-          await paymentApi.confirmPayment(orderId, paymentData);
+            title: '주문 결제',
+            content: '자동결제 등록 후 결제',
+            paymentMethod: paymentMethod || 'CREDIT_CARD',
+            paymentAmount: Number(amount),
+            paymentKey,
+          });
 
           setStatus('success');
 

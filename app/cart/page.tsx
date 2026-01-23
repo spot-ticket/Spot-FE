@@ -150,11 +150,12 @@ export default function CartPage() {
       console.log('주문 데이터:', JSON.stringify(orderData, null, 2));
 
       const order = await orderApi.createOrder(orderData);
-      console.log("@@");
-      // 2. 결제 진행
+      
+      // ******* //
+      // 결제 진행 //
+      // ******* //
       if (hasBillingKey) {
 
-        // 2-A. 빌링키가 있으면 자동 결제
         const paymentData = {
           title: `${cart.storeName} 주문`,
           content: `${cart.items.map((i) => i.menu.name).join(', ')}`,
@@ -166,15 +167,12 @@ export default function CartPage() {
 
         await paymentApi.confirmPayment(order.id, paymentData);
 
-        // 장바구니 비우기
         clearCart();
 
-        // 주문 완료 페이지로 이동
         alert('주문이 완료되었습니다!');
         router.push('/orders');
       } else {
 
-        // 2-B. 빌링키가 없으면 토스 결제창 띄우기
         const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
         if (!clientKey) {
@@ -182,19 +180,17 @@ export default function CartPage() {
         }
 
         const tossPayments = await loadTossPayments(clientKey);
-
-        // 빌링키 발급 요청
+        
+        // ************ //
+        // 빌링키 발급 요청 //
+        // ************ //
         const customerKey = `customer_${user.id}_${Date.now()}`;
-
-        console.log('=== requestBillingAuth 호출 ===');
-        console.log('customerKey:', customerKey);
-        console.log('customerName:', user.username);
 
         const response = await tossPayments.requestBillingAuth('카드', {
           customerKey: customerKey,
           customerName: user.username,
           successUrl: `${window.location.origin}/mypage/billing/success?orderId=${order.id}&paymentMethod=${paymentMethod}`,
-          failUrl: `${window.location.origin}/payemnts/fail`,
+          failUrl: `${window.location.origin}/payments/fail`,
         });
 
         console.log('=== requestBillingAuth 응답 ===');
