@@ -5,8 +5,6 @@ import Cookies from 'js-cookie';
 export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
-    'X-User-Id': '1',
-    'X-Role': 'CUSTOMER',
   },
 });
 

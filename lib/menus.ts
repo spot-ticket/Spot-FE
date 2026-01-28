@@ -72,7 +72,7 @@ export const menuApi = {
 
     console.log('메뉴 수정 요청 데이터:', requestData);
 
-    await api.put(`/api/stores/${storeId}/menus/${menuId}`, requestData);
+    await api.patch(`/api/stores/${storeId}/menus/${menuId}`, requestData);
   },
 
   // 메뉴 삭제
